@@ -50,6 +50,12 @@ function addDetails(dog, callback) {
             data.breed = $('.dog-meta__label:contains(Breed)').next().text().trim()
             data.age = $('.dog-meta__label:contains(Age)').next().text().trim()
             data.sex = $('.dog-meta__label:contains(Sex)').next().text().trim()
+            
+            data.reserved = false
+            
+            if ($('.label--reserved').length) {
+                data.reserved = true
+            }
 
             data.attributes = []
             $('.dog-attributes').find('span').each((index, attribute) => {
