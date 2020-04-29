@@ -71,6 +71,12 @@ functions:
     handler: handler.enrichDogs
     events:
       - schedule: cron(* * * * ? *)
+  get_dogs:
+    handler: handler.getDogs
+    events:
+      - http:
+          path: dogs
+          method: get
 #      - http:
 #          path: users/create
 #          method: get

@@ -46,10 +46,10 @@ function addDetails(dog, callback) {
             let $ = cheerio.load(response.data)
 
             let data = {}
-            data.centre = $('.dog-meta__label:contains(Centre)').next().text().trim()
-            data.breed = $('.dog-meta__label:contains(Breed)').next().text().trim()
-            data.age = $('.dog-meta__label:contains(Age)').next().text().trim()
-            data.sex = $('.dog-meta__label:contains(Sex)').next().text().trim()
+            data.centre = $('.dog-meta__label:contains(Centre)').next().text().trim() || 'NA'
+            data.breed = $('.dog-meta__label:contains(Breed)').next().text().trim() || 'NA'
+            data.age = $('.dog-meta__label:contains(Age)').next().text().trim() || 'NA'
+            data.sex = $('.dog-meta__label:contains(Sex)').next().text().trim() || 'NA'
             
             data.reserved = false
             

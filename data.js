@@ -107,6 +107,21 @@ exports.insertList = function(items, callback) {
         })
         callback()
     })
+}
 
+exports.getAll = function(callback) {
+    let params = {
+        TableName: 'dogs-list'
+    }
 
+    documentClient.scan(params, function(err, data) {
+        if (err) {
+            console.log(err)
+            return callback(err)
+        }
+        console.log('SCAN COMPLETE: ' + data.Count + ' results.')
+        let result = data.Items
+        
+        callback(null, result)
+    })
 }

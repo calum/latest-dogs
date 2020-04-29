@@ -110,3 +110,21 @@ module.exports.enrichDogs = async event => {
   })
   return promise
 }
+
+module.exports.getDogs = async event => {
+  const promise = new Promise(function(resolve, reject) {
+
+    data.getAll((err, dogs) => {
+      let response = {
+        statusCode: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify(dogs)
+      }
+  
+      resolve(response)
+    })
+  })
+  return promise
+}
