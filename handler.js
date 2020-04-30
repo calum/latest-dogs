@@ -89,7 +89,9 @@ module.exports.enrichDogs = async event => {
             resolve(item)
           }
         })
-      }
+      } else {
+        resolve(item)
+      } 
     })
   }).then(item => {
     // process this item inside another promise

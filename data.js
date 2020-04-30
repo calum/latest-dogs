@@ -86,7 +86,7 @@ exports.needsData = function(callback) {
             console.log(err)
             return callback(err)
         }
-        console.log('SCAN COMPLETE: ' + data.Count + ' results.')
+        console.log('SCAN COMPLETE FOR DOGS WITHOUT DATA: ' + data.Count + ' results.')
         let result = data.Items[0]
 
         callback(null, result)
