@@ -31,6 +31,48 @@ exports.getLatest = function(callback) {
 }
 
 /**
+ * Scan the table for item with the oldest lastupdated
+ * value.
+ */
+exports.getOldest = function(callback) {
+    let promise = new Promise(function(resolve, reject) {
+        let params = {
+            TableName: 'dogs-list'
+        }
+        documentClient.scan(params, function(err, data) {
+            if (err) {
+                console.log(err)
+                return reject(err)
+            }
+            console.log('SCAN COMPLETE: ' + data.Count + ' results.')
+            let results = data.Items
+            results.sort((a, b) => {
+                if (!a.lastUpdated || !b.lastUpdated) {
+                    if (!a.lastUpdated) {
+                        return -1
+                    } else {
+                        return 1
+                    }
+                }
+                if (a.lastUpdated < b.lastUpdated) {
+                    return -1
+                } else {
+                    return 1
+                }
+            })
+            resolve(results[0])
+        })
+    })
+    if (callback) {
+        promise
+            .then((data) => callback(null, data))
+            .catch(err => callback(err))
+    } else {
+        return promise
+    }
+}
+
+/**
  * Scan the table for items which have no 'data' field.
  */
 exports.needsData = function(callback) {
@@ -61,7 +103,8 @@ exports.update = function(item, callback) {
             name: item.name,
             createdAt: item.createdAt,
             enriched: true,
-            data: item.data
+            data: item.data,
+            lastUpdated: moment().format()
         }
     }
     documentClient.put(params, function(err, data) {

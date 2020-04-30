@@ -81,27 +81,35 @@ module.exports.enrichDogs = async event => {
 
       if (!item) {
         console.log('NO ITEM TO ENRICH')
-        return resolve()
+        console.log('UPDATING OLDEST ENTRY INSTEAD')
+        data.getOldest((err, item) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(item)
+          }
+        })
       }
-      
-      // process this item
+    })
+  }).then(item => {
+    // process this item inside another promise
+    return new Promise(function(resolve, reject) {
       addDetails(item, function(err, enrichedDog) {
         if (err) {
           console.error(err)
           item.errored = true
         }
-
+    
         if (!enrichedDog) {
           enrichedDog = item
         }
-
+    
         // update the dog in the database
         data.update(enrichedDog, function(err, result) {
           if (err) {
             console.error(err)
             return reject(err)
           }
-
           console.log("Updated " + enrichedDog.name)
           resolve(result)
         })
