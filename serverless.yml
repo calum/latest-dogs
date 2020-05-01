@@ -77,6 +77,10 @@ functions:
       - http:
           path: dogs
           method: get
+  watch_favourites:
+    handler: handler.watchFavourites
+    events:
+      - schedule: rate(10 minutes)
 #      - http:
 #          path: users/create
 #          method: get

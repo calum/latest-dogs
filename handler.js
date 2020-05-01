@@ -3,6 +3,9 @@ const {grabDogs, addDetails} = require('./dogs/dogs')
 const data = require('./data')
 const {send} = require('./mail')
 
+const mailingList = ['calumforster.play@gmail.com', 'carolinetharia@hotmail.co.uk']
+const favourites = ['1238201']
+
 module.exports.updateDogs = async event => {
   const promise = new Promise(function(resolve, reject) {
     grabDogs([], 1, function(dogs) {
@@ -58,7 +61,7 @@ module.exports.sendEmail = async event => {
 
       message += '</ul>'
 
-      send(['calumforster.play@gmail.com', 'carolinetharia@hotmail.co.uk'], subject, text, message, (err, info) => {
+      send(mailingList, subject, text, message, (err, info) => {
         if (err) {
           reject(err)
         } else {
@@ -137,4 +140,75 @@ module.exports.getDogs = async event => {
     })
   })
   return promise
+}
+
+module.exports.watchFavourites = async event => {
+  let changedDogs = []
+  for (const id of favourites) {
+    let dog = await new Promise(function(resolve, reject) {
+      data.getFromId(id, function(err, item) {
+        if (err) {
+          return reject(err)
+        }
+        return resolve(item)
+      })
+    })
+
+    let lastHash = dog.hash
+    console.log(`${dog.name} has hash ${lastHash}.`)
+
+    let updatedDog = await new Promise(function(resolve, reject) {
+      addDetails(dog, function(err, updated) {
+        if (err) {
+          return reject(err)
+        }
+        return resolve(updated)
+      })
+    })
+
+    let newHash = updatedDog.hash
+
+    if (lastHash != newHash) {
+      // send email alert for this dog
+      changedDogs.push(updatedDog)
+    }
+  }
+
+  if (changedDogs.length > 0) {
+    // send email and update database
+    const baseUrl = 'https://www.dogstrust.org.uk'
+
+    const names = changedDogs.map(dog => {
+      return dog.name
+    })
+
+    let subject = `${names.join(' ')} Updated!`
+
+    let message = `<h3>${names.join(' ')} Updated</h3>`
+
+    await new Promise(function(resolve, reject) {
+      send(mailingList, subject, subject, message, (err, info) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(info)
+        }
+      })
+    })
+
+    console.log('EMAIL SENT TO MAILING LIST')
+
+    for(const dog of changedDogs) {
+      await new Promise(function(resolve, reject) {
+        data.update(dog, function(err, data) {
+          if (err) {
+            return reject(err)
+          }
+          return resolve()
+        })
+      })
+    }
+
+    console.log('DATABASE UPDATED')
+  }
 }

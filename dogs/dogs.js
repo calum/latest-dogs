@@ -1,5 +1,6 @@
 const cheerio = require('cheerio')
 const axios = require('axios').default
+const crypto = require('crypto')
 
 const urls = {
     list: "https://www.dogstrust.org.uk/rehoming/dogs/filters/~~~~~n~/page/{page}",
@@ -21,6 +22,7 @@ function grabDogs(list, page, callback) {
                 newDog.url = $(this).attr('href')
                 newDog.image = $(this).find('.img-responsive').attr('src')
                 newDog.id = newDog.url.match(/\/(\d+?)\//)[1] || newDog.url
+
                 list.push(newDog)
             })
             if ($('.btn--next').length) {
@@ -63,6 +65,11 @@ function addDetails(dog, callback) {
             })
 
             dog.data = data
+
+            // calculate hash of page
+            var shasum = crypto.createHash('sha1')
+            shasum.update($('.dog-profile > .panel > .panel-body').html())
+            dog.hash = shasum.digest('base64')
             
             callback(null, dog)
         })

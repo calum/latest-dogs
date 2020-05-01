@@ -31,6 +31,30 @@ exports.getLatest = function(callback) {
 }
 
 /**
+ * Return a dog by its ID.
+ */
+exports.getFromId = function(id, callback) {
+    let params = {
+        TableName: 'dogs-list',
+        FilterExpression: 'id = :id',
+        ExpressionAttributeValues: {':id': id}
+    }
+
+    documentClient.scan(params, function(err, data) {
+        if (err) {
+            console.log(err)
+            return callback(err)
+        }
+        console.log('SCAN COMPLETE: ' + data.Count + ' results.')
+        if (data.Count < 1) {
+            return callback(null, null)
+        } else {
+            return callback(null, data.Items[0])
+        }
+    })
+}
+
+/**
  * Scan the table for item with the oldest lastupdated
  * value.
  */
@@ -104,7 +128,8 @@ exports.update = function(item, callback) {
             createdAt: item.createdAt,
             enriched: true,
             data: item.data,
-            lastUpdated: moment().format()
+            lastUpdated: moment().format(),
+            hash: item.hash || null,
         }
     }
     documentClient.put(params, function(err, data) {
