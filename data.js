@@ -61,7 +61,9 @@ exports.getFromId = function(id, callback) {
 exports.getOldest = function(callback) {
     let promise = new Promise(function(resolve, reject) {
         let params = {
-            TableName: 'dogs-list'
+            TableName: 'dogs-list',
+            FilterExpression: 'attribute_not_exists(errored) OR errored = :false',
+            ExpressionAttributeValues: {':false': false}
         }
         documentClient.scan(params, function(err, data) {
             if (err) {
@@ -102,7 +104,8 @@ exports.getOldest = function(callback) {
 exports.needsData = function(callback) {
     let params = {
         TableName: 'dogs-list',
-        FilterExpression: 'attribute_not_exists(enriched)',
+        FilterExpression: 'attribute_not_exists(enriched) AND (attribute_not_exists(errored) OR errored = :false)',
+        ExpressionAttributeValues: {':false': false}
     }
 
     documentClient.scan(params, function(err, data) {
@@ -127,9 +130,10 @@ exports.update = function(item, callback) {
             name: item.name,
             createdAt: item.createdAt,
             enriched: true,
-            data: item.data,
+            data: item.data || null,
             lastUpdated: moment().format(),
             hash: item.hash || null,
+            errored: item.errored || false
         }
     }
     documentClient.put(params, function(err, data) {
@@ -179,7 +183,9 @@ exports.insertList = function(items, callback) {
 
 exports.getAll = function(callback) {
     let params = {
-        TableName: 'dogs-list'
+        TableName: 'dogs-list',
+        FilterExpression: 'attribute_not_exists(errored) OR errored = :false',
+        ExpressionAttributeValues: {':false': false}
     }
 
     documentClient.scan(params, function(err, data) {

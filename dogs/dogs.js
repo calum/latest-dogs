@@ -43,7 +43,7 @@ function grabDogs(list, page, callback) {
 function addDetails(dog, callback) {
     let dogPage = urls.dog.replace('{id}', dog.id)
 
-    axios.get(dogPage)
+    axios.get(dogPage, {maxRedirects: 0})
         .then(function(response) {
             let $ = cheerio.load(response.data)
 
@@ -72,6 +72,9 @@ function addDetails(dog, callback) {
             dog.hash = shasum.digest('base64')
             
             callback(null, dog)
+        }).catch(err => {
+            console.log('Dog has been removed.')
+            callback(err)
         })
 }
 
