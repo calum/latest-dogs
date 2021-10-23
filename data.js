@@ -104,8 +104,9 @@ exports.getOldest = function(callback) {
 exports.needsData = function(callback) {
     let params = {
         TableName: 'dogs-list',
-        FilterExpression: 'attribute_not_exists(enriched) AND (attribute_not_exists(errored) OR errored = :false)',
-        ExpressionAttributeValues: {':false': false}
+        FilterExpression: '#type = :dogstrust AND attribute_not_exists(enriched) AND (attribute_not_exists(errored) OR errored = :false)',
+        ExpressionAttributeValues: {':false': false, ':dogstrust': 'dogs-trust'},
+        ExpressionAttributeNames: {'#type': 'type'}
     }
 
     documentClient.scan(params, function(err, data) {

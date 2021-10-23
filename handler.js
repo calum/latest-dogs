@@ -1,5 +1,6 @@
 'use strict';
 const {grabDogs, addDetails} = require('./dogs/dogs')
+const {grabManyTearsDogs} = require('./dogs/manytears')
 const data = require('./data')
 const {send} = require('./mail')
 
@@ -9,6 +10,23 @@ const favourites = []
 module.exports.updateDogs = async event => {
   const promise = new Promise(function(resolve, reject) {
     grabDogs([], 1, function(dogs) {
+      console.log(dogs)
+      data.insertList(dogs, (err, data) => {
+        if (err) {
+          reject(err)
+        }
+      
+        resolve()
+      })
+    })
+  })
+
+  return promise
+}
+
+module.exports.updateManyTearsDogs = async event => {
+  const promise = new Promise(function(resolve, reject) {
+    grabManyTearsDogs([], 1, function(dogs) {
       console.log(dogs)
       data.insertList(dogs, (err, data) => {
         if (err) {
@@ -52,6 +70,11 @@ module.exports.sendEmail = async event => {
 
         let dogUrl = baseUrl + dog.url
         let dogImg = baseUrl + dog.image
+
+        if (dog.type == 'manytears') {
+          dogUrl = dog.url
+          dogImg = dog.image
+        }
         
         dogMessage = dogMessage.replace('{url}', dogUrl)
         dogMessage = dogMessage.replace('{img}', dogImg)

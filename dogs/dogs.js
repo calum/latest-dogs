@@ -42,41 +42,49 @@ function grabDogs(list, page, callback) {
  * @param {function} callback 
  */
 function addDetails(dog, callback) {
-    let dogPage = urls.dog.replace('{id}', dog.id)
+    console.log(dog.name + " is from " + dog.type)
 
-    axios.get(dogPage, {maxRedirects: 0})
-        .then(function(response) {
-            let $ = cheerio.load(response.data)
-
-            let data = {}
-            data.centre = $('.dog-meta__label:contains(Centre)').next().text().trim() || 'NA'
-            data.breed = $('.dog-meta__label:contains(Breed)').next().text().trim() || 'NA'
-            data.age = $('.dog-meta__label:contains(Age)').next().text().trim() || 'NA'
-            data.sex = $('.dog-meta__label:contains(Sex)').next().text().trim() || 'NA'
-            
-            data.reserved = false
-            
-            if ($('.label--reserved').length) {
-                data.reserved = true
-            }
-
-            data.attributes = []
-            $('.dog-attributes').find('span').each((index, attribute) => {
-                data.attributes.push($(attribute).text().trim())
+    if (dog.type == "dogs-trust") {
+        let dogPage = urls.dog.replace('{id}', dog.id)
+    
+        axios.get(dogPage, {maxRedirects: 0})
+            .then(function(response) {
+                let $ = cheerio.load(response.data)
+    
+                let data = {}
+                data.centre = $('.dog-meta__label:contains(Centre)').next().text().trim() || 'NA'
+                data.breed = $('.dog-meta__label:contains(Breed)').next().text().trim() || 'NA'
+                data.age = $('.dog-meta__label:contains(Age)').next().text().trim() || 'NA'
+                data.sex = $('.dog-meta__label:contains(Sex)').next().text().trim() || 'NA'
+                
+                data.reserved = false
+                
+                if ($('.label--reserved').length) {
+                    data.reserved = true
+                }
+    
+                data.attributes = []
+                $('.dog-attributes').find('span').each((index, attribute) => {
+                    data.attributes.push($(attribute).text().trim())
+                })
+    
+                dog.data = data
+    
+                // calculate hash of page
+                var shasum = crypto.createHash('sha1')
+                shasum.update($('.dog-profile > .panel > .panel-body').html())
+                dog.hash = shasum.digest('base64')
+                
+                callback(null, dog)
+            }).catch(err => {
+                console.log('Dog has been removed.')
+                callback(err)
             })
-
-            dog.data = data
-
-            // calculate hash of page
-            var shasum = crypto.createHash('sha1')
-            shasum.update($('.dog-profile > .panel > .panel-body').html())
-            dog.hash = shasum.digest('base64')
-            
-            callback(null, dog)
-        }).catch(err => {
-            console.log('Dog has been removed.')
-            callback(err)
-        })
+    } else {
+        err = "Dog type not supported yet!"
+        console.log(err)
+        callback(err)
+    }
 }
 
 /**
