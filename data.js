@@ -125,6 +125,7 @@ exports.update = function(item, callback) {
         TableName: 'dogs-list',
         Item: {
             id: item.id,
+            type: "dogs-trust",
             url: item.url,
             image: item.image,
             name: item.name,
@@ -156,6 +157,7 @@ exports.insertList = function(items, callback) {
                     url: item.url,
                     image: item.image,
                     name: item.name,
+                    type: item.type,
                     createdAt: moment().format()
                 },
                 ConditionExpression: 'attribute_not_exists(id)'
@@ -174,7 +176,7 @@ exports.insertList = function(items, callback) {
             if (result.status == "rejected") {
                 console.log("DB INSERT FAILED: " + result.reason)
             } else {
-                console.log('DB INSERT: ' + result.value)
+                console.log('DB INSERT: ' + JSON.stringify(result.value))
             }
         })
         callback()

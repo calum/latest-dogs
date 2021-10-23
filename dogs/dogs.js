@@ -22,6 +22,7 @@ function grabDogs(list, page, callback) {
                 newDog.url = $(this).attr('href')
                 newDog.image = $(this).find('.img-responsive').attr('src')
                 newDog.id = newDog.url.match(/\/(\d+?)\//)[1] || newDog.url
+                newDog.type = "dogs-trust"
 
                 list.push(newDog)
             })

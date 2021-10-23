@@ -3,8 +3,8 @@ const {grabDogs, addDetails} = require('./dogs/dogs')
 const data = require('./data')
 const {send} = require('./mail')
 
-const mailingList = ['calumforster.play@gmail.com', 'carolinetharia@hotmail.co.uk']
-const favourites = ['1238201']
+
+const favourites = []
 
 module.exports.updateDogs = async event => {
   const promise = new Promise(function(resolve, reject) {
@@ -25,6 +25,7 @@ module.exports.updateDogs = async event => {
 
 module.exports.sendEmail = async event => {
   const promise = new Promise(function(resolve, reject) {
+    const mailingList = JSON.parse(process.env.mailinglist)
     data.getLatest((err, results) => {
       if (err) {
         console.log(err)
@@ -177,6 +178,7 @@ module.exports.watchFavourites = async event => {
   if (changedDogs.length > 0) {
     // send email and update database
     const baseUrl = 'https://www.dogstrust.org.uk'
+    const mailingList = JSON.parse(process.env.mailinglist)
 
     const names = changedDogs.map(dog => {
       return dog.name
