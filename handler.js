@@ -61,7 +61,7 @@ module.exports.updateManyTearsLatestDogs = async event => {
 module.exports.sendEmail = async event => {
   const promise = new Promise(function(resolve, reject) {
     const mailingList = JSON.parse(process.env.mailinglist)
-    data.getLatest((err, results) => {
+    data.getLatest(function(err, results) {
       if (err) {
         console.log(err)
         return reject(err)
@@ -82,6 +82,8 @@ module.exports.sendEmail = async event => {
 
       message += '<ul>'
 
+      let sentDogs = []
+
       results.items.forEach(dog => {
         let dogMessage = '<li>'+dog.name+'<a href="{url}"><img src="{img}"></a></li>'
 
@@ -98,15 +100,23 @@ module.exports.sendEmail = async event => {
 
         message += dogMessage
         text += ' ' + dogUrl + ' '
+
+        // Set this dog to 'sent' so it doesn't get sent twice
+        dog.sent = true
+        sentDogs.push(dog)
       })
 
       message += '</ul>'
 
-      send(mailingList, subject, text, message, (err, info) => {
+      send(mailingList, subject, text, message, function(err, info) {
         if (err) {
           reject(err)
         } else {
-          resolve(info)
+          console.log("Email sent, now updating dogs to mark as sent...")
+          data.updateList(sentDogs, function() {
+            console.log("Marked " + sentDogs.length + " dogs as sent.")
+            resolve(info)
+          })
         }
       })
     })

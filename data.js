@@ -11,8 +11,8 @@ var documentClient = new AWS.DynamoDB.DocumentClient()
 exports.getLatest = function(callback) {
     let params = {
         TableName: 'dogs-list',
-        FilterExpression: 'createdAt > :datetime',
-        ExpressionAttributeValues: {':datetime': moment().subtract(14, 'minutes').format()}
+        FilterExpression: 'createdAt > :datetime AND (attribute_not_exists(sent) OR sent = :false)',
+        ExpressionAttributeValues: {':datetime': moment().subtract(14, 'minutes').format(), ':false': false}
     }
 
     documentClient.scan(params, function(err, data) {
@@ -135,6 +135,7 @@ exports.update = function(item, callback) {
             data: item.data || null,
             lastUpdated: moment().format(),
             hash: item.hash || null,
+            sent: item.sent || false,
             errored: item.errored || false
         }
     }
@@ -143,6 +144,49 @@ exports.update = function(item, callback) {
             callback(err)
         }
         callback(null, data)
+    })
+}
+
+exports.updateList = function(items, callback) {
+    let promises = []
+    console.log("Updating " + items.length + " items...")
+    items.forEach(item => {
+        promises.push(new Promise(function(resolve, reject) {
+            let params = {
+                TableName: 'dogs-list',
+                Item: {
+                    id: item.id,
+                    type: item.type,
+                    url: item.url,
+                    image: item.image,
+                    name: item.name,
+                    createdAt: item.createdAt,
+                    enriched: true,
+                    data: item.data || null,
+                    lastUpdated: moment().format(),
+                    hash: item.hash || null,
+                    sent: item.sent || false,
+                    errored: item.errored || false
+                }
+            }
+            documentClient.put(params, function(err, data) {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        }))
+    })
+
+    Promise.allSettled(promises).then(results => {
+        results.forEach(result => {
+            if (result.status == "rejected") {
+                console.log("DB INSERT FAILED: " + result.reason)
+            } else {
+                console.log('DB INSERT: ' + JSON.stringify(result.value))
+            }
+        })
+        callback()
     })
 }
 

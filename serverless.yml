@@ -62,7 +62,7 @@ functions:
   update_dogs:
     handler: handler.updateDogs
     events:
-      - schedule: rate(30 minutes)
+      - schedule: rate(10 minutes)
   update_manytears_dogs_from_homepage:
     handler: handler.updateManyTearsLatestDogs
     events:
@@ -70,7 +70,7 @@ functions:
   send_email:
     handler: handler.sendEmail
     events:
-      - schedule: rate(10 minutes)
+      - schedule: rate(5 minutes)
   enrich_data:
     handler: handler.enrichDogs
     events:
