@@ -1,6 +1,6 @@
 'use strict';
 const {grabDogs, addDetails} = require('./dogs/dogs')
-const {grabManyTearsDogs} = require('./dogs/manytears')
+const {grabManyTearsDogs, getLatestHomepage} = require('./dogs/manytears')
 const data = require('./data')
 const {send} = require('./mail')
 
@@ -26,7 +26,24 @@ module.exports.updateDogs = async event => {
 
 module.exports.updateManyTearsDogs = async event => {
   const promise = new Promise(function(resolve, reject) {
-    grabManyTearsDogs([], 1, function(dogs) {
+    grabManyTearsDogs([], 0, function(dogs) {
+      console.log(dogs)
+      data.insertList(dogs, (err, data) => {
+        if (err) {
+          reject(err)
+        }
+      
+        resolve()
+      })
+    })
+  })
+
+  return promise
+}
+
+module.exports.updateManyTearsLatestDogs = async event => {
+  const promise = new Promise(function(resolve, reject) {
+    getLatestHomepage(function(dogs) {
       console.log(dogs)
       data.insertList(dogs, (err, data) => {
         if (err) {
@@ -66,7 +83,7 @@ module.exports.sendEmail = async event => {
       message += '<ul>'
 
       results.items.forEach(dog => {
-        let dogMessage = '<li><a href="{url}"><img src="{img}"></a></li>'
+        let dogMessage = '<li>'+dog.name+'<a href="{url}"><img src="{img}"></a></li>'
 
         let dogUrl = baseUrl + dog.url
         let dogImg = baseUrl + dog.image

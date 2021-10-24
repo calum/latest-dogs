@@ -126,7 +126,7 @@ exports.update = function(item, callback) {
         TableName: 'dogs-list',
         Item: {
             id: item.id,
-            type: "dogs-trust",
+            type: item.type,
             url: item.url,
             image: item.image,
             name: item.name,

@@ -3,7 +3,9 @@ const axios = require('axios').default
 
 const urls = {
     dog: "https://www.manytearsrescue.org/display_all_mtar_dogs.php?counter={counter}",
-    image: "https://www.manytearsrescue.org/{image}"
+    image: "https://www.manytearsrescue.org/{image}",
+    list: "https://www.manytearsrescue.org/dogslookingforhomes.php",
+    dogLink: "https://www.manytearsrescue.org/{link}"
 }
 
 /**
@@ -42,15 +44,52 @@ function grabManyTearsDogs(list, counter, callback) {
     })
 }
 
+/**
+ * Get the latest  dogs from the homepage
+ * 
+ */
+function getLatestHomepage(callback) {
+    console.log("getting latest dogs from the homepage...")
+
+    axios.get(urls.list).then(function(response) {
+        let $ = cheerio.load(response.data)
+
+        let table = $('#the_table > tbody').children()
+
+        console.log("looking at " + table.length + " dogs.")
+
+        let dogs = []
+
+        table.each(function () {
+            let $ = cheerio.load(this)
+
+            let name = $('tr:nth-child(2) > td > a').text()
+
+            console.log('Grabbing info for ' + name)
+
+            let newDog = {}
+            newDog.name = name
+            newDog.url = urls.dogLink.replace('{link}', $('a').attr('href'))
+            newDog.image = urls.image.replace('{image}', $('img').attr('src'))
+            newDog.id = $('a').attr('href').match(/display\_mtar\_dog\.php\?id=(.+)/)[1]
+            newDog.type = "manytears"
+
+            dogs.push(newDog)
+        })
+
+        return callback(dogs)
+    })
+
+}
 
 /**
  * Return a list which has filtered out all reserved dogs.
- * @param {Array} allDogs 
  */
 function removeReserved(allDogs) {
     return []
 }
 
 module.exports = {
-    grabManyTearsDogs: grabManyTearsDogs
+    grabManyTearsDogs: grabManyTearsDogs,
+    getLatestHomepage: getLatestHomepage
 }

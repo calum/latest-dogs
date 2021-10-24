@@ -63,10 +63,10 @@ functions:
     handler: handler.updateDogs
     events:
       - schedule: rate(30 minutes)
-  update_manytears_dogs:
-    handler: handler.updateManyTearsDogs
+  update_manytears_dogs_from_homepage:
+    handler: handler.updateManyTearsLatestDogs
     events:
-      - schedule: rate(30 minutes)
+      - schedule: rate(10 minutes)
   send_email:
     handler: handler.sendEmail
     events:
@@ -81,10 +81,6 @@ functions:
       - http:
           path: dogs
           method: get
-  watch_favourites:
-    handler: handler.watchFavourites
-    events:
-      - schedule: rate(10 minutes)
 #      - http:
 #          path: users/create
 #          method: get

@@ -1,6 +1,8 @@
-const { grabDogs, addDetails } = require('./manytears')
+const { grabDogs, addDetails, getLatestHomepage } = require('./manytears')
 
-grabDogs([], 0, (res) => console.log(res))
+getLatestHomepage((res) => console.log(res))
+
+// grabDogs([], 0, (res) => console.log(res))
 
 // addDetails({
 //     id: '1238931'
