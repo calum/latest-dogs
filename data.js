@@ -31,6 +31,31 @@ exports.getLatest = function(callback) {
 }
 
 /**
+ * Returns all items with a 'createdAt' timestamp within 14 minutes.
+ */
+ exports.getLatestDiscord = function(callback) {
+    let params = {
+        TableName: 'dogs-list',
+        FilterExpression: 'createdAt > :datetime AND (attribute_not_exists(discord) OR discord = :false)',
+        ExpressionAttributeValues: {':datetime': moment().subtract(14, 'minutes').format(), ':false': false}
+    }
+
+    documentClient.scan(params, function(err, data) {
+        if (err) {
+            console.log(err)
+            return callback(err)
+        }
+        console.log('SCAN COMPLETE: ' + data.Count + ' results.')
+        let result = {
+            count: data.Count,
+            items: data.Items
+        }
+
+        callback(null, result)
+    })
+}
+
+/**
  * Return a dog by its ID.
  */
 exports.getFromId = function(id, callback) {
@@ -136,6 +161,7 @@ exports.update = function(item, callback) {
             lastUpdated: moment().format(),
             hash: item.hash || null,
             sent: item.sent || false,
+            discord: item.discord || false,
             errored: item.errored || false
         }
     }
@@ -166,6 +192,7 @@ exports.updateList = function(items, callback) {
                     lastUpdated: moment().format(),
                     hash: item.hash || null,
                     sent: item.sent || false,
+                    discord: item.discord || false,
                     errored: item.errored || false
                 }
             }

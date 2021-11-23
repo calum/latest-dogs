@@ -81,6 +81,18 @@ functions:
       - http:
           path: dogs
           method: get
+  get_dogs_for_discord:
+    handler: handler.getDogsForDiscord
+    events:
+      - http:
+          path: dogs
+          method: get
+  update_dog_for_discord:
+    handler: handler.updateDogForDiscord
+    events:
+      - http:
+          path: dogs
+          method: post
 #      - http:
 #          path: users/create
 #          method: get

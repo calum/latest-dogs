@@ -175,6 +175,42 @@ module.exports.enrichDogs = async event => {
   return promise
 }
 
+module.exports.getDogsForDiscord = async event => {
+  const promise = new Promise(function(resolve, reject) {
+
+    data.getLatestDiscord((err, dogs) => {
+      let response = {
+        statusCode: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify(dogs)
+      }
+  
+      resolve(response)
+    })
+  })
+  return promise
+}
+
+module.exports.updateDogForDiscord = async event => {
+  const promise = new Promise(function(resolve, reject) {
+    console.log('Received event:', JSON.stringify(event, null, 2))
+
+    let dog = JSON.parse(event.body).dog
+    console.log('Updating dog:', JSON.stringify(dog, null, 2))
+    data.update(dog, function(err, data) {
+      if (err) {
+        console.error(err)
+        return reject(err)
+      }
+      console.log("dog updated!")
+      return resolve()
+    })
+  })
+  return promise
+}
+
 module.exports.getDogs = async event => {
   const promise = new Promise(function(resolve, reject) {
 
